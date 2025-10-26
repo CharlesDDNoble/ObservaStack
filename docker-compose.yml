@@ -1,6 +1,3 @@
-# docker-compose.yml
-version: '3.8'
-
 services:
   backend:
     build: ./backend 
@@ -9,9 +6,11 @@ services:
       - "8000"
 
   gateway:
-    build: ./gateway          
-    image: gateway-image      
+    build: 
+      context: .
+      dockerfile: gateway/Dockerfile
+    image: gateway-image
     ports:
-      - "80:80"             
+      - "80:80"
     depends_on:
-      - backend             
+      - backend
