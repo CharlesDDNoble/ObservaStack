@@ -1,0 +1,10 @@
+# This file auto-configures the Prometheus datasource in Grafana
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090 # The Docker Compose service name for Prometheus
+    isDefault: true
+    editable: false

@@ -2,6 +2,8 @@ fastapi
 
 uvicorn[standard]
 
+prometheus-fastapi-instrumentator
+
 structlog
 
 starlette-exporter
