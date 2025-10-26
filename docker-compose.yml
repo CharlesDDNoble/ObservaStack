@@ -1,0 +1,17 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend 
+    image: backend-image
+    expose:
+      - "8000"
+
+  gateway:
+    build: ./gateway          
+    image: gateway-image      
+    ports:
+      - "80:80"             
+    depends_on:
+      - backend             
