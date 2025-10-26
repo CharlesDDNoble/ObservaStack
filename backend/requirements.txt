@@ -1,0 +1,11 @@
+fastapi
+
+uvicorn[standard]
+
+structlog
+
+starlette-exporter
+
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp-proto-grpc
