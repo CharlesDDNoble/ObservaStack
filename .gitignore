@@ -1,2 +1,5 @@
 observability/grafana/data
 observability/prometheus/data
+observability/loki/data
+observability/promtail/data
+__pycache__/
