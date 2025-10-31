@@ -1,101 +1,137 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Server, AlertCircle, BarChart3, Settings } from 'lucide-react';
+import Card, { CARD_STATUS } from './components/Card';
+import ApiSelector from './components/ApiSelector';
+import ApiControls from './components/ApiControls';
+import ResponseDisplay from './components/ResponseDisplay';
+import { useApi } from './hooks/useApi';
+import { API_ENDPOINTS } from './config/apiEndpoints';
 
-/* --- Reusable Card Component --- */
-const Card = ({ icon, title, description, buttonText, status }) => {
-  
-  // Choose icon color based on status
-  let iconColor = 'text-indigo-400'; // Default
-  if (status === 'error') {
-    iconColor = 'text-red-400';
-  } else if (status === 'ok') {
-    iconColor = 'text-green-400';
-  }
-
-  return (
-    <div className="flex flex-col justify-between bg-gray-900 border border-gray-800 rounded-xl shadow-lg p-6">
-      <div>
-        <div className={`p-2 bg-gray-800 rounded-full w-min ${iconColor}`}>
-          {icon}
-        </div>
-        <h3 className="text-xl font-semibold text-white mt-4">{title}</h3>
-        <p className="text-gray-400 mt-2">{description}</p>
-      </div>
-      <button className="w-full text-center px-4 py-2.5 mt-6 rounded-md text-sm font-medium transition-colors bg-indigo-600 text-white hover:bg-indigo-500">
-        {buttonText}
-      </button>
-    </div>
-  );
-};
-
-
-/* --- App Component --- */
 export default function App() {
-  const [apiData, setApiData] = useState(null);
-  const [apiError, setApiError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedEndpoint, setSelectedEndpoint] = useState('');
+  const { 
+    data: apiData, 
+    error: apiError, 
+    isLoading, 
+    currentEndpoint,
+    refetch, 
+    switchEndpoint, 
+    callEndpoint 
+  } = useApi(null, false); // Don't auto-fetch, wait for user selection
 
-  useEffect(() => {
-    // Fetch data from the backend API
-    fetch('/api/hello')
-      .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.json();
-      })
-      .then(data => {
-        setApiData(data);
-      })
-      .catch(error => {
-        console.error('Failed to fetch:', error);
-        setApiError('Failed to fetch data.');
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  // Helper to determine the API card's content
+  // Helper functions
   const getApiCardDescription = () => {
-    if (isLoading) return "Loading data from backend...";
-    if (apiError) return apiError;
-    if (apiData) return apiData.message;
-    return "No data found.";
+    if (!selectedEndpoint) return "Select an API endpoint above to test connectivity";
+    if (isLoading) return "Testing connection...";
+    if (apiError) return "Connection failed - check response above";
+    if (apiData) return "Connection successful - see response above";
+    return "Ready to test API connection";
+  };
+
+  const getApiCardStatus = () => {
+    if (!selectedEndpoint) return CARD_STATUS.LOADING;
+    if (isLoading) return CARD_STATUS.LOADING;
+    if (apiError) return CARD_STATUS.ERROR;
+    if (apiData) return CARD_STATUS.OK;
+    return CARD_STATUS.LOADING;
+  };
+
+  const getApiCardIcon = () => {
+    if (isLoading) return <Server size={24} />;
+    if (apiError) return <AlertCircle size={24} />;
+    return <Server size={24} />;
+  };
+
+  // Event handlers
+  const handleEndpointChange = (endpoint) => {
+    setSelectedEndpoint(endpoint);
+    if (endpoint) {
+      switchEndpoint(endpoint);
+    }
+  };
+
+  const handleCheckConnection = () => {
+    if (selectedEndpoint) {
+      callEndpoint(selectedEndpoint);
+    }
+  };
+
+  const handleViewAnalytics = () => {
+    // TODO: Navigate to analytics page
+    console.log('Navigate to analytics');
+  };
+
+  const handleGoToSettings = () => {
+    // TODO: Navigate to settings page
+    console.log('Navigate to settings');
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-950 p-6">
-      <div className="w-full max-w-5xl">
-        {/* Title */}
+      <div className="w-full max-w-6xl">
         <h1 className="text-3xl font-bold text-white text-center mb-8">
           Application Control Panel
         </h1>
         
-        {/* Grid for the three cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* API Testing Section */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
+          <h2 className="text-xl font-semibold text-white mb-4">API Testing</h2>
           
-          {/* Card 1: API Status */}
-          <Card
-            icon={isLoading ? <Server size={24} /> : (apiError ? <AlertCircle size={24} /> : <Server size={24} />)}
-            title="Backend Status"
-            description={getApiCardDescription()}
-            buttonText="Check Connection"
-            status={isLoading ? 'loading' : (apiError ? 'error' : 'ok')}
+          <ApiSelector
+            endpoints={API_ENDPOINTS}
+            selectedEndpoint={selectedEndpoint}
+            onEndpointChange={handleEndpointChange}
+            isLoading={isLoading}
           />
           
-          {/* Card 2: Placeholder */}
+          <ApiControls
+            onRefetch={refetch}
+            onCallEndpoint={() => callEndpoint(selectedEndpoint)}
+            isLoading={isLoading}
+            hasEndpoint={!!selectedEndpoint}
+          />
+          
+          {/* Current endpoint display */}
+          {currentEndpoint && (
+            <div className="text-sm text-gray-400 mb-4">
+              Current endpoint: <code className="bg-gray-800 px-2 py-1 rounded">{currentEndpoint}</code>
+            </div>
+          )}
+          
+          {/* Response Display */}
+          <ResponseDisplay
+            data={apiData}
+            error={apiError}
+            isLoading={isLoading}
+            endpoint={selectedEndpoint}
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card
+            icon={getApiCardIcon()}
+            title="API Response"
+            description={getApiCardDescription()}
+            buttonText="Test API"
+            status={getApiCardStatus()}
+            onButtonClick={handleCheckConnection}
+          />
+          
           <Card
             icon={<BarChart3 size={24} />}
             title="Analytics"
             description="View application usage, user metrics, and performance analytics."
             buttonText="View Analytics"
+            onButtonClick={handleViewAnalytics}
           />
           
-          {/* Card 3: Placeholder */}
           <Card
             icon={<Settings size={24} />}
             title="Settings"
             description="Configure application settings, manage user permissions, and set up integrations."
             buttonText="Go to Settings"
+            onButtonClick={handleGoToSettings}
           />
-
         </div>
       </div>
     </div>
