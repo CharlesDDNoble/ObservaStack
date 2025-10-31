@@ -1,6 +1,7 @@
 fastapi
 
 uvicorn[standard]
+gunicorn
 
 prometheus-fastapi-instrumentator
 

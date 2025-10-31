@@ -1,5 +1,7 @@
 services:
   backend:
+    tmpfs:
+      - /tmp/prometheus_multiproc:size=10M
     build: ./backend 
     image: backend-image
     expose:
