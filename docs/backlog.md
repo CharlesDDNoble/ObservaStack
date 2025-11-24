@@ -2,11 +2,6 @@
 
 **Goal:** Establish the complete, integrated environment for training incident response skills and complete the core observability loop (Alert - Investigate - Resolve).
 
-### Current Capabilities (Baseline)
-* Full observability dashboards (Golden Signals).
-* Live signal injection and configurable load testing via Locust.
-* Full-stack visibility (Metrics, Logs, Traces).
-
 ### Next Steps (Deliverables)
 * [ ] Integrate **AlertManager** for practicing real-time alerting, silence management, and reducing "alert fatigue."
 * [ ] Implement **Prometheus Exemplars** for direct trace-to-metric linking, bridging the "what" (metrics) to the "why" (traces).
@@ -22,11 +17,8 @@ Reduces oncall onboarding time and improves incident response quality by enablin
 
 ### Next Steps (Deliverables)
 * **SUT Architecture Refactor:**
-    * [ ] Refactor SUT into a distributed system: Add a **Toy Database (PostgreSQL/SQLite)** and a **Mini Microservice (e.g., Inventory)** to introduce dependencies and persistence.
+    * [ ] Refactor SUT into a distributed system: Add a **Database (PostgreSQL/SQLite)** and a **Microservice (e.g., Inventory)** to introduce dependencies and persistence.
     * [ ] Integrate a **Redis Caching Layer** to introduce performance acceleration and consistency challenges.
-* **Infrastructure Isolation:**
-    * [ ] **Terraform: Separate SUT and Observability Stack** onto distinct VMs/hosts to eliminate resource contention and guarantee monitoring reliability.
-    * [ ] Terraform: Deploy the **Locust Load Generator** alongside the Observability Stack, confirming the Lesson Learned that testing infrastructure needs isolation.
 
 ### Value
 Validates system resilience by allowing the practice of **cascading failure** debugging and proves the system's operational design by isolating the monitoring plane.
