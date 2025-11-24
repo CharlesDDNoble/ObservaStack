@@ -158,11 +158,9 @@ ObservaStack/
 
 ## Demos
 
-### React Control Panel
+### Control Panel
 
-Manual signal injection: trigger endpoints, configure concurrent requests, watch metrics update in real-time.
-
-![React Control Panel](docs/react-control-panel.gif)
+![Control Panel](docs/demo.gif)
 
 ## Principles
 

@@ -8,9 +8,7 @@ A fully observable, production-grade system and SRE training platform, capable o
 
 * [ ] Self learner
 
-### Functionality
-
-# Tasks
+### Tasks
 
 * [ ] Develop initial **Scenario Library** and instructor guides for standardized failure patterns (e.g., slow database query, thread exhaustion).
 * [ ] Implement runtime system configuration interface (`/config` endpoints) to allow dynamic, programmable failure injection and repair.

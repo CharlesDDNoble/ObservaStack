@@ -1,4 +1,3 @@
-```markdown
 # Overview
 
 The UI is an **SRE Incident Response Workbench**, a multi-view application designed to guide a trainee through a complete debugging workflow (the OODA loop) in response to a simulated incident.
@@ -342,4 +341,3 @@ This mirrors real incident response where you maintain situational awareness (co
 - Can users "reply" to updates (e.g., acknowledge stakeholder message)?
 - Should updates be dismissible or permanently visible in timeline?
 - Toast notifications for updates: always, configurable, or never?
-```

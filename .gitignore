@@ -1,10 +1,16 @@
-testing/results/*
-testing/locust.log
+# Development Workflow artifacts
 .vscode/
 __pycache__/
 typings/
-
 .github/*
 
-# Environment files
+# Deploy files
 deploy/docker/.env.cloud
+
+# Frontend build artifacts
+control/frontend/build/
+control/frontend/node_modules/
+
+# Load testing artifacts
+testing/results/*
+testing/locust.log

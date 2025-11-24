@@ -5,9 +5,9 @@ import { useOpenApiSchema } from './hooks/useOpenApiSchema';
 import { getApiBaseUrl } from './config/apiEndpoints';
 import { dashboardLayouts } from './config/dashboardLayouts';
 import DashboardPage from './components/dashboard/DashboardPage';
-import LoadingScreen from './components/shared/LoadingScreen';
+import LoadingScreen from '../common/ui/LoadingScreen';
 
-export default function App() {
+export default function ObservaStackV1() {
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [selectedEndpoint, setSelectedEndpoint] = useState('');
   const [builtEndpoint, setBuiltEndpoint] = useState(''); // The actual URL with parameters filled in
