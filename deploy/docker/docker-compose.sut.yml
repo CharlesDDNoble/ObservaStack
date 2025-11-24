@@ -1,0 +1,119 @@
+# System Under Test - Gateways / Agents / System Under Test
+
+services:
+  sut-gateway:
+    build: 
+      context: ../../
+      dockerfile: sut/sut-gateway/Dockerfile
+    image: sut-gateway-image
+    ports:
+      - "${SUT_GATEWAY_PORT:-80}:80"
+    networks:
+      - sut-network
+      - control-network
+      - load-network
+
+  secure-gateway:
+    build: 
+      context: ../../
+      dockerfile: sut/secure-gateway/Dockerfile
+    image: sut-secure-gateway-image
+    ports:
+      - "${SECURE_GATEWAY_PORT:-9000}:9000"
+    networks:
+      - sut-network
+      - control-network
+
+  observability-gateway:
+    build: 
+      context: ../../
+      dockerfile: sut/observability-gateway/Dockerfile
+    image: sut-observability-gateway-image
+    ports:
+      - "${OBSERVABILITY_GATEWAY_PORT:-9091}:80"
+    networks:
+      - sut-network
+      - observability-network
+
+  sut-api-server:
+    labels:
+      - "monitoring=sut"
+    tmpfs:
+      - /tmp/prometheus_multiproc:size=10M
+    build:
+      context: ../../
+      dockerfile: sut/application/Dockerfile
+    image: sut-image
+    environment:
+      - OTEL_SERVICE_NAME=observastack-sut
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${TEMPO_HOST:-tempo}:4317
+      - PYROSCOPE_SERVER_ADDRESS=http://${PYROSCOPE_HOST:-pyroscope}:4040
+    ipc: shareable
+    expose:
+      - "80"
+    networks:
+      - sut-network
+      - observability-network
+
+  sut-controller:
+    build: 
+      context: ../../
+      dockerfile: sut/controller/Dockerfile
+    image: sut-controller-image
+    expose:
+      - "80"
+    pid: "service:sut-api-server"
+    networks:
+      - sut-network
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    command:
+      - '-nginx.scrape-uri=http://${SUT_GATEWAY_HOST:-sut-gateway}/nginx_status'
+    expose:
+      - "9113"
+    networks:
+      - sut-network
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    expose:
+      - "9100"
+    networks:
+      - sut-network
+    privileged: true
+
+  container-stats-exporter:
+    build:
+      context: ../../
+      dockerfile: sut/container-stats-exporter/Dockerfile
+    image: sut-container-stats-exporter-image
+    container_name: observastack-container-stats-exporter
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    expose:
+      - "8080"
+    networks:
+      - sut-network
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.1.0
+    command: -config.file=/etc/promtail/promtail.yml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../../observability/promtail/promtail.yml:/etc/promtail/promtail.yml
+      - promtail-data:/tmp/promtail
+    networks:
+      - sut-network
+      - observability-network
+
+volumes:
+  promtail-data:

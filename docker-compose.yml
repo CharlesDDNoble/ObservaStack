@@ -1,0 +1,11 @@
+# ObservaStack - Orchestrator Compose File
+# This file includes all stack components using the include directive
+# Use with: docker compose --env-file deploy/docker/.env.local up -d
+
+include:
+  - deploy/docker/docker-compose.networks.yml
+  - deploy/docker/docker-compose.control.yml
+  - deploy/docker/docker-compose.observability.yml
+  - deploy/docker/docker-compose.sut.yml
+  - deploy/docker/docker-compose.load.yml
+

@@ -1,0 +1,10 @@
+testing/results/*
+testing/locust.log
+.vscode/
+__pycache__/
+typings/
+
+.github/*
+
+# Environment files
+deploy/docker/.env.cloud

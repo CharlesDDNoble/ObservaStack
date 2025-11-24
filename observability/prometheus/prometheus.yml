@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'sut'
+    metrics_path: /sut-api-server/metrics
+    static_configs:
+      - targets: ['observability-gateway:80']
+  - job_name: 'nginx'
+    metrics_path: /nginx-exporter/metrics
+    static_configs:
+      - targets: ['observability-gateway:80']
+  - job_name: 'node'
+    metrics_path: /node-exporter/metrics
+    static_configs:
+      - targets: ['observability-gateway:80']
+  - job_name: 'container-stats'
+    metrics_path: /container-stats/metrics
+    static_configs:
+      - targets: ['observability-gateway:80']

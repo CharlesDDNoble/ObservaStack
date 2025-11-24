@@ -1,0 +1,25 @@
+# Load Generator
+
+services:
+  load-generator:
+    build: 
+      context: ../../
+      dockerfile: load/generator/Dockerfile
+    image: load-generator-image
+    # ports: # Debugging only
+      # - "${LOAD_GENERATOR_PORT:-8080}:80"
+    expose:
+      - "80"
+    volumes:
+      - ../../load/scripts:/mnt/locust
+      - load-state:/mnt/state
+      - load-results:/mnt/results
+    environment:
+      - LOCUST_HOST=${SUT_HOST:-http://sut-gateway}
+    networks:
+      - load-network
+      - sut-network
+
+volumes:
+  load-state:
+  load-results:

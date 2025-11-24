@@ -1,0 +1,20 @@
+# Example terraform.tfvars file
+# Copy this to terraform.tfvars and fill in your values
+
+project_id = "your-gcp-project-id"
+region     = "us-central1"
+zone       = "us-central1-a"
+
+instance_name = "observastack"
+machine_type  = "c4a-standard-1" # While testing this was lower cost, more stable, and had higher 
+                                 # performance than comparable x86 options.
+disk_size_gb  = 30
+disk_type     = "hyperdisk-balanced"
+image         = "ubuntu-os-cloud/ubuntu-2204-lts-arm64"  # ARM64 Ubuntu image
+
+# Optional: Configure SSH access
+# ssh_user       = "your-username"
+# ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ..."
+
+# Optional: Use a fork of the repository
+# github_repo = "https://github.com/yourusername/ObservaStack.git"

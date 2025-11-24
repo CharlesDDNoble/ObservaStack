@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" fill="#0f172a" rx="4"/>
+  
+  <!-- Magnifying Glass (centered and large) -->
+  <g transform="translate(6, 6)">
+    <!-- Glass lens -->
+    <circle cx="8" cy="8" r="7" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+    <circle cx="8" cy="8" r="5" fill="#3b82f6" opacity="0.2"/>
+    
+    <!-- Handle - longer and starts outside the lens -->
+    <line x1="13.5" y1="13.5" x2="20" y2="20" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Highlight/glint for depth -->
+    <circle cx="5.5" cy="5.5" r="2" fill="#ffffff" opacity="0.4"/>
+  </g>
+</svg>

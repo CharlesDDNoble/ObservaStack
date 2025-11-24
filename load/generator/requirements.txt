@@ -1,0 +1,7 @@
+fastapi
+httpx
+uvicorn[standard]
+gunicorn
+locust>=2.0.0
+pydantic
+psutil

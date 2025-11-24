@@ -1,0 +1,19 @@
+# Network definitions for ObservaStack
+# All networks are defined here to avoid conflicts when using include directive
+
+networks:
+  observability-network:
+    name: observastack-observability
+    driver: bridge
+  
+  sut-network:
+    name: observastack-sut
+    driver: bridge
+  
+  load-network:
+    name: observastack-load
+    driver: bridge
+
+  control-network:
+    name: observastack-control
+    driver: bridge

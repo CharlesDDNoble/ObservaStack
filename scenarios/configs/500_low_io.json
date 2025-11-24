@@ -1,0 +1,9 @@
+{
+  "name": "500 Low IO Test",
+  "description": "500 users, 10 minutes - Low IO load test",
+  "users": 500,
+  "spawn_rate": 1,
+  "run_time": "10m",
+  "class_name": "LowIOUser",
+  "workers": 2
+}

@@ -1,0 +1,4 @@
+#cloud-config
+# This cloud-init config runs the startup script
+runcmd:
+  - bash -c '${startup_script}'
