@@ -1,5 +1,24 @@
 # Development Guide
 
+## Themes
+
+The following high level themes guide the development of the project, each modification and feature should be made with them in mind:
+
+1.  **Accessible**
+    * **What:** The project should be easy to start with and intuitive to use.
+    * **Why:** To accelerate user adoption and gather essential feedback for iteration.
+    * **How:** Through an open-source model focused on a fast, simple setup.
+
+2.  **Applicable**
+    * **What:** The project must teach in-demand, market-relevant skills.
+    * **Why:** To equip users with practical, real-world abilities they can apply immediately.
+    * **How:** By focusing on industry-standard tools and modern best practices.
+
+3.  **Universal**
+    * **What:** The project teaches foundational concepts that are transferable across any technology stack or problem domain.
+    * **Why:** To provide enduring knowledge that outlasts any single tool and empowers users to adapt to future technologies.
+    * **How:** By focusing on core system design patterns and first-principles thinking.
+
 ## The Platform as Curriculum
 
 **What:** ObservaStack's architecture should exemplify best practices—students learn by reading the code, not just using the system.
