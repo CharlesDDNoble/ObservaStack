@@ -4,7 +4,9 @@
 
 The config system lets scenarios change how the SUT behaves at runtime. Instead of deploying new code, scenarios push configuration changes that toggle between good and bad implementations, slow and fast settings, or healthy and degraded states.
 
-Every configuration includes a version identifier that gets attached to all metrics, making it easy to see when changes cause problems.
+Each service owns its configuration. Services expose a standard interface (`/config`) for reading and writing config, persist to their own volume, and read that volume on startup. The orchestrator tracks intended state; the Control Agent delivers config pushes; services manage their own persistence.
+
+Every configuration includes a version identifier attached to all metrics, making it easy to see when changes cause problems.
 
 ## Why It Exists
 
@@ -16,20 +18,14 @@ Static failures (kill a container, block network traffic) teach "the system is d
 
 ### Students Must Take Action
 
-Watching dashboards is passive learning. Real incident response requires action:
-- See latency spike
-- Check metrics, form hypothesis
-- Make a change (add workers, enable caching, rollback config)
-- Observe if it helped
-- Repeat until fixed
+Watching dashboards is passive learning. Real incident response requires action: see latency spike, check metrics, form hypothesis, make a change, observe if it helped, repeat until fixed.
 
 Without the ability to change config, students can't practice this loop. With it, they learn by doing.
 
 ### Changes Must Be Visible
 
-When metrics spike, the first question is: "What changed?"
+When metrics spike, the first question is: "What changed?" Version labels answer this immediately:
 
-Version labels answer this immediately:
 ```
 latency{version="1.0"} = 100ms  (before)
 latency{version="1.1"} = 8s     (after)
@@ -39,101 +35,99 @@ Students learn to correlate changes with problems—the foundation of debugging.
 
 ## How It Works
 
-### Configuration Storage
+### Ownership Model
 
-The SUT reads settings from environment variables when it starts:
-- Version identifier (appears in all metrics)
-- Server settings (worker count, timeouts)
-- Feature toggles (which algorithm to use, whether caching is on)
-- Chaos knobs (how much latency to inject, error rates)
+| Component | Owns | Responsibility |
+|-----------|------|----------------|
+| Orchestrator | Intended state | Decides when to push config (scenario transitions, student fixes) |
+| Control Agent | Nothing | Stateless delivery—forwards config, signals restart |
+| Service | Its own config | Receives, persists, reads on startup |
 
-### Applying Changes
+### Standard Config Interface
 
-The orchestrator pushes new configuration through an API endpoint. The control agent writes these settings to a file and restarts the SUT container. The container starts up with the new settings.
+Every service exposes the same contract:
 
-This causes 5-10 seconds of downtime, which is realistic—many production config changes require restarts.
+| Method | Endpoint | Behavior |
+|--------|----------|----------|
+| GET | `/config` | Read from volume, return current |
+| POST | `/config` | Write to volume |
+| PUT | `/config` | Replace config, write to volume |
+| DELETE | `/config` | Reset to defaults, write to volume |
 
-### Version in Every Metric
+Read operations return current state. Write operations persist to the service's volume. Services are self-sufficient—if they crash, they restart with the last config they persisted.
 
-All Prometheus metrics include the current version as a label. When graphed, this creates a clear visual split when versions change. Students can see exactly when performance diverged and correlate it with the deployment.
+### Config Push Flow
 
-### Toggling Behavior
+1. Orchestrator sends config to Control Agent
+2. Control Agent forwards to service's `/config` endpoint
+3. Service writes to its volume, acknowledges
+4. Control Agent signals restart (SIGHUP or SIGTERM)
+5. Service restarts, reads config from its volume
 
-Configuration doesn't just set numbers—it controls which code paths execute:
+The orchestrator doesn't need to be available for recovery. The Control Agent doesn't store state. Each service manages its own persistence.
 
-```
-if config says "use recursive algorithm":
-    compute result the slow way
-else:
-    compute result the fast way
-```
+### Version Labels
 
-This lets scenarios inject realistic performance problems by switching implementations, not just adding artificial delays.
+All Prometheus metrics include the current version as a label. When graphed, this creates a clear visual split when versions change. Students see exactly when performance diverged.
 
 ## What This Enables
 
-### Performance Regressions
+### Self-Healing Services
 
-A scenario starts with version 1.0 using an efficient algorithm. After 3 minutes, it pushes version 1.1 with an inefficient algorithm. Latency spikes. Students see the version change in metrics, check the profiler, discover the algorithm is the problem, and fix it by either rolling back or enabling caching.
+If a service crashes, it restarts with valid config. No dependency on orchestrator availability or Control Agent state. The volume is the source of truth for runtime config.
 
-**Learning**: Code changes cause performance problems. Use profiling to find them.
+### Scalable Architecture
 
-### Configuration Problems
-
-Same code version, different settings. First the system runs with 8 workers and handles load fine. Then config changes to 2 workers. Latency increases even though CPU isn't maxed out. Students realize workers are queuing, not the code.
-
-**Learning**: Not every problem is a bug. Sometimes it's just wrong settings.
-
-### External vs Internal
-
-Traffic doubles but version stays constant. Latency increases. Students check version labels, see no change, dig deeper into request patterns. They learn to distinguish "we broke it" from "they broke it."
-
-**Learning**: Always check what changed. Version labels show internal changes. Missing version change means look elsewhere.
+Adding services (database, cache, worker) means implementing the same `/config` interface. Control Agent routes by endpoint. Orchestrator pushes config lists. No service-specific logic in the control plane.
 
 ### Safe Experimentation
 
-Students can try different fixes:
-- Increase workers to 8 → watch latency
-- Increase workers to 32 → watch context switching hurt performance
-- Switch to async workers → handle more with fewer processes
-- Enable caching → bypass the slow computation entirely
+Students push config changes and see immediate feedback. Increase workers, watch latency. Enable caching, watch hit rates. Every change is reversible. They build intuition through experimentation.
 
-Each change provides immediate feedback. They build intuition through experimentation, not guessing.
+### Failure Attribution
 
-## Why Restart Is Fine
-
-The SUT is stateless—no user sessions, no long-lived connections. Restart means brief unavailability, not data loss.
-
-More importantly, restarts are realistic:
-- Production config changes often require restarts
-- Students need to see what happens during deploys
-- Metrics show the gap (traffic drops to zero, then recovers)
-- Load tests keep running, some requests fail with 503, then succeed again
-
-This teaches operational reality: deployments cause brief disruptions, and that's normal and observable.
-
-## Teaching Outcomes
-
-**Change attribution**: Students learn to ask "what changed?" first. Version labels make this obvious, building the habit of checking recent changes before anything else.
-
-**Hypothesis testing**: Make a change, see if metrics improve. If not, try something else. This is how real debugging works—informed experimentation, not perfect knowledge.
-
-**Systems thinking**: Students discover that "more workers" doesn't always help (diminishing returns), "longer timeout" might hide problems, and "enable caching" has trade-offs. They learn there are no universal rules, only context-dependent decisions.
-
-**Tool fluency**: By repeatedly checking metrics after config changes, students build muscle memory: where to look, what patterns mean trouble, how to correlate signals across metrics/logs/traces.
+Version labels distinguish "we broke it" (version changed) from "they broke it" (traffic changed). Students learn to check what changed first.
 
 ## Design Principles
 
-**Simple**: Environment variables and restarts. No complex config management systems.
+- **Service data ownership**: Each service owns its config and persistence.
+- **Stateless delivery**: Control Agent forwards, doesn't store.
+- **Visible changes**: Version in every metric.
+- **Standard interface**: Same contract for all services.
+- **Fast feedback**: Results visible in under 30 seconds.
 
-**Visible**: Version in every metric. Changes are always observable.
+## Alternatives Considered
 
-**Realistic**: Toggles between actual implementations, not just injecting delays.
+### Alternative 1: Control Agent Owns Config Persistence
 
-**Safe**: Students can't break anything. Every change is reversible.
+**Description:** Control Agent writes config to a shared volume. SUT reads from that volume on startup. Control Agent is responsible for maintaining the authoritative config state.
 
-**Fast**: See results in under 30 seconds. Tight feedback loop accelerates learning.
+**Pros:** Single writer simplifies conflict resolution. Control Agent already has privileged access for signaling.
+
+**Cons:** Violates service data ownership—SUT must ask Control Agent "what's my config?" Creates tight coupling. Control Agent crash could orphan config state. Doesn't scale to multiple services cleanly.
+
+**Why rejected:** Services should own their data. The dependency inversion feels wrong architecturally—the controlled component asking its controller for state is backwards.
+
+### Alternative 2: Orchestrator Re-pushes on Every Restart
+
+**Description:** No persistence. Orchestrator detects service restarts and pushes config before traffic arrives. Services read from environment variables set at container creation.
+
+**Pros:** Truly stateless services. Single source of truth in orchestrator.
+
+**Cons:** Race condition between restart and re-push. Orchestrator must be highly available. Can't use environment variables for runtime changes (set at container creation only). Adds detection and retry complexity.
+
+**Why rejected:** Fragile. Recovery depends on orchestrator availability and timing. Actual implementation would require file-based config anyway since environment variables can't change at runtime.
+
+### Alternative 3: Kubernetes-style Reconciliation Loop
+
+**Description:** Orchestrator periodically reconciles intended config with actual config. Detects drift and corrects automatically.
+
+**Pros:** Self-healing. Eventually consistent. Handles all failure modes.
+
+**Cons:** Auto-healing undermines training. If the system fixes itself, students can't practice remediation. The student should be the reconciler.
+
+**Why rejected:** Pedagogically wrong. Drift is the exercise. The system should stay broken until the student acts.
 
 ## Summary
 
-The config system transforms ObservaStack from a monitoring demo into an incident response simulator. Students don't just watch dashboards—they diagnose problems, make decisions, apply changes, and learn from what happens. Version labels teach them to correlate changes with incidents, the most important skill in operational debugging.
+The config system transforms ObservaStack from a monitoring demo into an incident response simulator. Services own their config, persist it themselves, and recover independently. The Control Agent delivers without storing. The orchestrator coordinates without being required for recovery. Students diagnose problems, apply changes, and learn from immediate feedback—the core loop of operational debugging.
