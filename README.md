@@ -48,7 +48,7 @@ The entire project can be run on your home computer or in the cloud, see the fol
 
 ### Local Deployment (Your Computer)
 
-Deploy the stack on a local machine.
+Deploy the project on a local machine.
 
 **Requires:**
 
@@ -58,7 +58,7 @@ Deploy the stack on a local machine.
 **Instructions:**
 
 ```bash
-# Clone and start the stack
+# Clone the project and deploy it on your machine
 git clone https://github.com/CharlesDDNoble/ObservaStack.git
 cd ObservaStack
 docker compose --env-file deploy/docker/.env.local up -d
@@ -66,52 +66,6 @@ docker compose --env-file deploy/docker/.env.local up -d
 # Control Panel:    http://localhost
 # Grafana:          http://localhost:3000 (admin/admin)
 ```
-
-### Cloud Deployment (Google's Computers)
-
-Deploy to Google Cloud Platform (GCP) with Terraform, creating two virtual machines (VMs) to run the project on.
-
-**Requires:**
-
-1. Git (to clone the repository)
-1. [Terraform](https://www.terraform.io/downloads) (v1.0+) Or install via package manager (Scoop, Homebrew, etc.)
-1. [gcloud CLI](https://cloud.google.com/sdk/docs/install) (Google Cloud SDK) for auth and IAP access.
-1. GCP Account with billing enabled
-
-**Estimated Cloud Cost:** 
-
-Running the default two c4a-standard-1 setup would cost roughly $0.05/hour per VM (around $30/month per vm). If a scenario takes an hour, then you can run a single scenario for just 10 cents. Just make sure to clean up the project when you're done to excess avoid costs.
-
-Note: GCP often offers a credit for new projects, so **you may be able to run the project for free**. Be aware that cloud costs fluctuate, so **these numbers are subject to change**.
-
-**Instructions:**
-
-```bash
-git clone https://github.com/CharlesDDNoble/ObservaStack.git
-cd ObservaStack
-cd deploy/terraform
-
-# Configure your project
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your GCP project details
-
-# Deploy
-terraform init
-terraform apply
-
-# Access via IAP tunnels. This keeps your ObservaStack isolated from 
-# the internet so that only you can interact with it on your computer.
-# Type localhost:80 into your browser to access the Control Panel.
-gcloud compute start-iap-tunnel observastack 80 --local-host-port=localhost:80 --zone=us-central1-a
-
-# Type localhost:3000 into your browser to access the Grafana server.
-gcloud compute start-iap-tunnel observastack 3000 --local-host-port=localhost:3000 --zone=us-central1-a
-
-# Clean up the project when you're done to avoid excess costs.
-terraform destroy
-```
-
-See [deploy/terraform/README.md](deploy/terraform/README.md) for detailed GCP deployment instructions and configuration options.
 
 ## How it works
 
@@ -123,15 +77,11 @@ See [Acknowledgements](#acknowledgements) for links to the technologies used.
 1. **The Observability Stack**: Industry standard observability pipeline (Grafana/Prometheus/Loki/Tempo/Pyroscope).
 1. **The Control Plane**: A system for orchestrating test scenarios with a modern UI Control Panel (React/tailwindCSS/shadcn).
 1. **The Load Generator**: A load generator (Locust) for reliably triggering specific load patterns on the SUT.
-1. **Deployment**: Platform agnostic and cloud native (Docker/Terraform). 
-
-The "dev" deployment spins up the stack on your local machine and the "production" deployment creates two virtual machines to isolate the control and observability components from the SUT to reduce resource contention and measurement accuracy of the SUT.
+1. **Deployment**: Platform agnostic and cloud native using Docker containers for everything. Deploy locally or in the cloud.
 
 ![Architecture Diagram](docs/simple-diagram.png)
 
 For a more detailed layout view the [detailed architecture](docs/detailed-diagram.png).
-
-Built with security in mind following the principles of zero trust and least access, check out the security and networking model in [secure architecture](docs/secure-architecture.md) for more details.
 
 ### Project Structure
 
