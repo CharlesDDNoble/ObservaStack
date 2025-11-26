@@ -26,9 +26,15 @@
 5. **Design Principles / Limitations** (bulleted list)
    - Core philosophical decisions
    - Trade-offs made explicit
-   - Format: "X over Y" or direct statements
+   - Format: "X over Y", "X v. Y", "X not Y" or direct statements
 
-6. **Summary** (1-2 paragraphs)
+6. **Alternatives considered** (0-3 alternatives, 1 subsections each)
+   - Description
+   - Pros
+   - Cons
+   - Why rejected
+
+7. **Summary** (1-2 paragraphs)
    - Restate core value proposition
    - Connect to larger vision/purpose
    - End with forward-looking statement
@@ -53,9 +59,8 @@
 - Why: ~250 words
 - How: ~300 words
 - Enables: ~150 words
-- Principles: ~50 words
-- Example: ~50 words (mostly code)
-- Outcomes: ~50 words
+- Principles/limits: ~50 words
+- Alternatives: ~50 words/per section
 - Summary: ~50 words
 
 This forces prioritization—only the most important ideas make the cut.
