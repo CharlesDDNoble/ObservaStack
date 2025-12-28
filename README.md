@@ -14,6 +14,10 @@ ObservaStack is a platform for learning core system ownership and operational he
 
 Once you clone the repository you can have a monitored system running in minutes. Test it, break it, fix it, and learn.
 
+## Current State
+
+Work-in-progress: See the [mvp design doc](docs/mvp.md).
+
 ## Why it was made
 
 Learning incident response the traditional way means waiting for production systems to break—which is stressful, high-stakes, and offers no chance to practice. Tutorials and toy examples don't prepare you for real debugging because they lack the complexity and observability of production systems.
