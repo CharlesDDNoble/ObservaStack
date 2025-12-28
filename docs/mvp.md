@@ -122,4 +122,4 @@ The following are valuable but required only for additional user journeys (team 
 * Message queue + async workflows
 * Kubernetes deployment option
 
-See [backlog.md](backlog.md) for post-MVP expansion plans.
+See [backlog.md](backlog/backlog.md) for post-MVP expansion plans.
