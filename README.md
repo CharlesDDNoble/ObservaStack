@@ -18,6 +18,8 @@ Once you clone the repository you can have a monitored system running in minutes
 
 Work-in-progress: See the [mvp design doc](docs/mvp.md).
 
+ETA: December 2026 for MVP
+
 ## Why it was made
 
 Learning incident response the traditional way means waiting for production systems to break—which is stressful, high-stakes, and offers no chance to practice. Tutorials and toy examples don't prepare you for real debugging because they lack the complexity and observability of production systems.
