@@ -14,12 +14,6 @@ ObservaStack is a platform for learning core system ownership and operational he
 
 Once you clone the repository you can have a monitored system running in minutes. Test it, break it, fix it, and learn.
 
-## Current State
-
-Work-in-progress: See the [mvp design doc](docs/mvp.md).
-
-ETA: December 2026 for MVP
-
 ## Why it was made
 
 Learning incident response the traditional way means waiting for production systems to break—which is stressful, high-stakes, and offers no chance to practice. Tutorials and toy examples don't prepare you for real debugging because they lack the complexity and observability of production systems.
@@ -85,9 +79,13 @@ See [Acknowledgements](#acknowledgements) for links to the technologies used.
 1. **The Load Generator**: A load generator (Locust) for reliably triggering specific load patterns on the SUT.
 1. **Deployment**: Platform agnostic and cloud native using Docker containers for everything. Deploy locally or in the cloud.
 
+### Architecture Diagram (Simple)
+
 ![Architecture Diagram](docs/simple-diagram.png)
 
-For a more detailed layout view the [detailed architecture](docs/detailed-diagram.png).
+### Architecture Diagram (Detailed)
+
+![Detailed architecture](docs/detailed-diagram.png).
 
 ### Project Structure
 
